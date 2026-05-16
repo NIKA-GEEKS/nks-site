@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NKS 3.7 — Neural Kinetic Super Resolution</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#05010d;
+    color:white;
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+}
+
+body::before{
+    content:'';
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:
+    radial-gradient(circle at top right, rgba(122,0,255,.18), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(110,0,255,.14), transparent 35%);
+    z-index:-2;
+}
+
+.container{
+    width:90%;
+    max-width:1300px;
+    margin:auto;
+}
+
+header{
+    padding:30px 0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-family:'Orbitron',sans-serif;
+    font-size:2rem;
+    font-weight:700;
+    color:#9c4dff;
+}
+
+.logo span{
+    color:white;
+}
+
+nav a{
+    color:#ccc;
+    text-decoration:none;
+    margin-left:30px;
+    transition:.3s;
+}
+
+nav a:hover{
+    color:#9c4dff;
+}
+
+.hero{
+    min-height:90vh;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:50px;
+    flex-wrap:wrap;
+}
+
+.hero-text{
+    flex:1;
+    min-width:300px;
+}
+
+.hero-text h1{
+    font-size:4.5rem;
+    font-family:'Orbitron',sans-serif;
+    line-height:1.1;
+    margin-bottom:20px;
+}
+
+.hero-text h1 span{
+    color:#9c4dff;
+}
+
+.hero-text p{
+    color:#bdbdbd;
+    font-size:1.1rem;
+    line-height:1.8;
+    max-width:650px;
+    margin-bottom:35px;
+}
+
+.buttons{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    padding:15px 32px;
+    border-radius:14px;
+    border:none;
+    cursor:pointer;
+    font-size:1rem;
+    transition:.3s;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.btn-primary{
+    background:linear-gradient(90deg,#6f00ff,#9c4dff);
+    color:white;
+    box-shadow:0 0 25px rgba(156,77,255,.4);
+}
+
+.btn-primary:hover{
+    transform:translateY(-3px);
+}
+
+.btn-secondary{
+    border:1px solid #6f00ff;
+    color:white;
+    background:transparent;
+}
+
+.hero-image{
+    flex:1;
+    min-width:300px;
+    position:relative;
+}
+
+.hero-image img{
+    width:100%;
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 0 40px rgba(123,0,255,.25);
+}
+
+.glow{
+    position:absolute;
+    width:400px;
+    height:400px;
+    background:#7a00ff;
+    filter:blur(140px);
+    opacity:.25;
+    top:10%;
+    right:0;
+    z-index:-1;
+}
+
+section{
+    padding:120px 0;
+}
+
+.section-title{
+    font-family:'Orbitron',sans-serif;
+    font-size:2.5rem;
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.section-sub{
+    text-align:center;
+    color:#aaa;
+    max-width:700px;
+    margin:auto;
+    line-height:1.8;
+    margin-bottom:70px;
+}
+
+.features{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:30px;
+}
+
+.card{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.05);
+    padding:35px;
+    border-radius:22px;
+    transition:.3s;
+    backdrop-filter:blur(10px);
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    border-color:#7a00ff;
+}
+
+.card h3{
+    font-size:1.4rem;
+    margin-bottom:15px;
+    color:#b980ff;
+}
+
+.card p{
+    color:#bbb;
+    line-height:1.7;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:25px;
+    margin-top:50px;
+}
+
+.stat{
+    background:rgba(255,255,255,.03);
+    border-radius:20px;
+    padding:35px;
+    text-align:center;
+}
+
+.stat h2{
+    color:#9c4dff;
+    font-size:3rem;
+    font-family:'Orbitron',sans-serif;
+}
+
+.download{
+    text-align:center;
+    background:linear-gradient(180deg,rgba(122,0,255,.08),transparent);
+    border-radius:30px;
+    padding:70px 40px;
+    border:1px solid rgba(255,255,255,.05);
+}
+
+.download h2{
+    font-size:3rem;
+    margin-bottom:20px;
+    font-family:'Orbitron',sans-serif;
+}
+
+.download p{
+    color:#bcbcbc;
+    max-width:700px;
+    margin:auto;
+    line-height:1.8;
+    margin-bottom:35px;
+}
+
+footer{
+    border-top:1px solid rgba(255,255,255,.05);
+    padding:40px 0;
+    text-align:center;
+    color:#777;
+    margin-top:80px;
+}
+
+.wave{
+    position:absolute;
+    bottom:-100px;
+    left:0;
+    width:100%;
+    opacity:.25;
+    pointer-events:none;
+}
+
+@media(max-width:900px){
+
+.hero{
+    flex-direction:column;
+    text-align:center;
+    padding-top:50px;
+}
+
+.hero-text h1{
+    font-size:3rem;
+}
+
+.buttons{
+    justify-content:center;
+}
+
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+    <div class="logo">NKS <span>3.7</span></div>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#features">Tecnologia</a>
+        <a href="#stats">Performance</a>
+        <a href="#download">Download</a>
+    </nav>
+</header>
+
+<section class="hero">
+
+<div class="hero-text">
+    <h1>
+        Neural <span>Kinetic</span><br>
+        Super Resolution
+    </h1>
+
+    <p>
+        O NKS 3.7 é uma IA avançada de Frame Generation e Upscaling criada pela NIKA GEEKS.
+        Desenvolvido para entregar mais FPS, maior nitidez e menor perda visual,
+        funcionando diretamente via driver para máxima integração e desempenho.
+    </p>
+
+    <div class="buttons">
+        <a href="#download" class="btn btn-primary">
+            Download em breve
+        </a>
+
+        <a href="#features" class="btn btn-secondary">
+            Conhecer tecnologia
+        </a>
+    </div>
+</div>
+
+<div class="hero-image">
+    <div class="glow"></div>
+
+    <img src="nks-ui.jpg" alt="NKS UI">
+</div>
+
+</section>
+
+<section id="features">
+
+<h2 class="section-title">
+Tecnologia NKS
+</h2>
+
+<p class="section-sub">
+Uma solução de inteligência artificial focada em desempenho extremo,
+baixa latência e reconstrução avançada de imagem.
+</p>
+
+<div class="features">
+
+<div class="card">
+    <h3>⚡ Frame Generation 2X</h3>
+    <p>
+        O NKS atualmente possui geração de quadros 2X via IA,
+        aumentando drasticamente a fluidez dos jogos compatíveis.
+    </p>
+</div>
+
+<div class="card">
+    <h3>🧠 IA Neural Upscaling</h3>
+    <p>
+        Reconstrução inteligente de imagem com foco em nitidez,
+        estabilidade visual e preservação de detalhes.
+    </p>
+</div>
+
+<div class="card">
+    <h3>🎮 Integração via Driver</h3>
+    <p>
+        O sistema opera em nível de driver,
+        permitindo compatibilidade avançada e baixa latência.
+    </p>
+</div>
+
+<div class="card">
+    <h3>🚀 Performance Otimizada</h3>
+    <p>
+        Projetado para entregar mais FPS sem comprometer
+        qualidade visual ou responsividade.
+    </p>
+</div>
+
+<div class="card">
+    <h3>💜 Interface Minimalista</h3>
+    <p>
+        Design moderno inspirado em tecnologias futuristas,
+        mantendo simplicidade e acessibilidade.
+    </p>
+</div>
+
+<div class="card">
+    <h3>🔧 Futuras Atualizações</h3>
+    <p>
+        Em breve: novos modos de geração,
+        suporte expandido e melhorias de IA.
+    </p>
+</div>
+
+</div>
+
+</section>
+
+<section id="stats">
+
+<h2 class="section-title">
+Performance Inteligente
+</h2>
+
+<p class="section-sub">
+Criado para elevar o desempenho das GPUs modernas utilizando IA de reconstrução temporal.
+</p>
+
+<div class="stats">
+
+<div class="stat">
+    <h2>2X</h2>
+    <p>Frame Generation</p>
+</div>
+
+<div class="stat">
+    <h2>AI</h2>
+    <p>Upscaling Neural</p>
+</div>
+
+<div class="stat">
+    <h2>LOW</h2>
+    <p>Latência Reduzida</p>
+</div>
+
+<div class="stat">
+    <h2>RTX</h2>
+    <p>Compatibilidade Moderna</p>
+</div>
+
+</div>
+
+</section>
+
+<section id="download">
+
+<div class="download">
+
+<h2>
+Download em Breve
+</h2>
+
+<p>
+O executável oficial do NKS será disponibilizado futuramente pela NIKA GEEKS.
+Prepare-se para experimentar uma nova geração de Frame Generation e Super Resolution baseada em IA.
+</p>
+
+<a href="#" class="btn btn-primary">
+Executável indisponível no momento
+</a>
+
+</div>
+
+</section>
+
+<footer>
+    © 2026 NIKA GEEKS — NKS 3.7 Neural Kinetic Super Resolution
+</footer>
+
+</div>
+
+</body>
+</html>
